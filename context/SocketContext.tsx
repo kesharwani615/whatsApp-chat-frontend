@@ -3,9 +3,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
 
-const APP_ID = "0064f7a77f9e4210959f63567793d56b"; // Replace with your actual App ID
+const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID;
 const client: IAgoraRTCClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-
 
 interface SocketContextType {
   socket: Socket | null;
@@ -59,7 +58,7 @@ export const SocketProvider = ({
 
   const joinAgora = async (channelName: string, token: string) => {
     try {
-      const uid = await client.join(APP_ID, channelName, token, null);
+      const uid = await client.join(APP_ID!, channelName, token, null);
 
       const [audioTrack, videoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
       setLocalAudioTrack(audioTrack);

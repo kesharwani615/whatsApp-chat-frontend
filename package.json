@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
+    "agora-rtc-sdk-ng": "^4.24.3",
     "cookies-next": "^6.0.0",
     "dayjs": "^1.11.20",
     "js-cookie": "^3.0.5",

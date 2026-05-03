@@ -6,6 +6,9 @@ import ReduxProvider from "@/ReduxProvider/ReduxProvider";
 import { Bounce, ToastContainer } from "react-toastify";
 import { SocketProvider } from "@/context/SocketContext";
 import { cookies } from "next/headers";
+import IncomingCallModal from "@/components/IncomingCallModal";
+import CallWindow from "@/components/CallWindow";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +41,8 @@ export default async function RootLayout({
         <ReduxProvider>
           <SocketProvider initialToken={token}>
             {children}
+            <IncomingCallModal />
+            <CallWindow />
             <ToastContainer
               position="top-right"
               autoClose={5000}

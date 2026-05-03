@@ -16,7 +16,7 @@ const ChatContainer = () => {
   const { sendMessageSingle } = useSocket();
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const id = useAppSelector((state) => state.idSlice.userId); 
+  const id = useAppSelector((state) => state.idSlice.userId);
   const { data, isLoading, isError } = useGetUserChatQuery({ id }, {
     skip: !id
   });
@@ -64,14 +64,14 @@ const ChatContainer = () => {
   };
 
   return (
-    <>  
+    <>
       <ContainerNavbar />
       <div
         className="w-full h-[calc(100vh-90px)] flex flex-col bg-cover bg-center"
         style={{ backgroundImage: `url(${background.src})` }}
       >
-        <div 
-          className="overflow-auto h-full" 
+        <div
+          className="overflow-auto h-full"
           id="chat-container"
           ref={chatContainerRef}
         >
@@ -83,7 +83,7 @@ const ChatContainer = () => {
             <div className="flex justify-center items-center h-full text-[#667781]">No messages yet.</div>
           ) : (
             <Suspense fallback={<div>Loading...</div>}>
-              <ChatRender allMessages={allMessages} id={id}/>
+              <ChatRender allMessages={allMessages} id={id} />
             </Suspense>
           )}
         </div>
@@ -91,30 +91,30 @@ const ChatContainer = () => {
         {/* Typing here for send message */}
         {
           id && (
-        <div className="mt-auto bg-[#F0F2F5] py-3 flex">
-          <div className="flex gap-7 w-[100px] px-4">
-            <Image src={emoji} alt={"emoji"} />
-            <Image src={share} alt={"share"} />
-          </div>
-          <textarea
-            name="message"
-            placeholder="Enter your message here"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="bg-[#ffffff] rounded-[10px] px-5 py-4 outline-none w-full max-w-full  
+            <div className="mt-auto bg-[#F0F2F5] py-3 flex">
+              <div className="flex gap-7 w-[100px] px-4">
+                <Image src={emoji} alt={"emoji"} />
+                <Image src={share} alt={"share"} />
+              </div>
+              <textarea
+                name="message"
+                placeholder="Enter your message here"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="bg-[#ffffff] rounded-[10px] px-5 py-4 outline-none w-full max-w-full  
               resize-none
               min-h-[60px] max-h-[200px]  
               overflow-y-auto"
-          ></textarea>
-          <div className="w-[100px] h-full flex justify-center items-center">
-            <IoMdSend 
-              className="text-[25px] cursor-pointer" 
-              onClick={handleSendMessage}
-            />
-          </div>
-        </div>
-        )
+              ></textarea>
+              <div className="w-[100px] h-full flex justify-center items-center">
+                <IoMdSend
+                  className="text-[25px] cursor-pointer"
+                  onClick={handleSendMessage}
+                />
+              </div>
+            </div>
+          )
         }
       </div>
     </>

@@ -7,7 +7,7 @@ import { useLoginMutation } from "@/redux RTK/api/auth";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-// import { cookies } from 'next/headers';
+import { setCookie } from "cookies-next";
 
 interface LoginProps {
   onSwitchToSignup: () => void;
@@ -50,7 +50,9 @@ const Login: React.FC<LoginProps> = ({ onSwitchToSignup }) => {
       const res = await login(formData).unwrap();
       console.log("Login data:", res);
       localStorage.setItem("whatsApp", res.data.accessToken);
+      setCookie("whatsApp", res.data.accessToken, { maxAge: 60 * 60 * 24 * 7 });
       if (res?.success) {
+        toast.success("Logged in successfully!");
         router.push("/");
       }
   
@@ -58,8 +60,6 @@ const Login: React.FC<LoginProps> = ({ onSwitchToSignup }) => {
         email: "",
         password: "",
       });
-
-      // router.push("/");
     } catch (error) {
       setErrors([{ message: "Login failed. Please check your credentials." }]);
     } finally {

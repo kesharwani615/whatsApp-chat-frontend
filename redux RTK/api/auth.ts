@@ -9,7 +9,7 @@ interface LoginRequest {
 export const Authapi = createApi({
   reducerPath: "Authapi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:4700/",
+    baseUrl: process.env.NEXT_PUBLIC_BASEURL as string,
     prepareHeaders: (headers) => {
       // You can set default headers here if needed
       headers.set('Content-Type', 'application/json');
@@ -32,7 +32,14 @@ export const Authapi = createApi({
         body: credentials
       }),
     }),
+    logout: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `api/v1/user/logout/${id}`,
+        method: 'POST',
+        credentials: "include"
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useSignupMutation } = Authapi;
+export const { useLoginMutation, useSignupMutation, useLogoutMutation } = Authapi;

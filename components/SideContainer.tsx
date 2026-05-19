@@ -1,14 +1,10 @@
 import Image from "next/image";
 import React from "react";
-import profile from "@/images/profile.svg";
-import contact from "@/images/icon/contactPeople.svg";
-import status from "@/images/icon/Status Icon.svg";
-import message from "@/images/icon/message.svg";
-import threeDot from "@/images/icon/threeDot.svg";
 import threeLine from "@/images/icon/Verticle3Lines.svg";
 import { cookies } from "next/headers";
 import { User, userData } from "@/utils/module";
 import UserRender from "./UserRender";
+import SideHeader from "./SideHeader";
 
 // utils/api.ts
 export async function getUsers(token: string | undefined):Promise<userData> {
@@ -61,29 +57,7 @@ const SideContainer = async () => {
     <nav className="bg-[#ffffff] ">
       {/* navbar  */}
       <div className="w-[400px] h-[100vh] flex flex-col ">
-        <div className="h-[90px]  bg-[#F0F2F5] mx-auto w-full">
-          <div className="container mx-auto h-full flex items-center justify-between px-4">
-            <div>
-              <p className="">
-                <Image src={profile} alt="profile" />
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <p className="cursor-pointer">
-                <Image src={contact} alt="call" />
-              </p>
-              <p className="cursor-pointer">
-                <Image src={status} alt="videocall" />
-              </p>
-              <p className="cursor-pointer">
-                <Image src={message} alt="search" />
-              </p>
-              <p className="cursor-pointer">
-                <Image src={threeDot} alt="threeDot" />
-              </p>
-            </div>
-          </div>
-        </div>
+        <SideHeader />
 
         {/* search */}
 

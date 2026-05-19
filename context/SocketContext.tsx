@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from "r
 import { io, Socket } from "socket.io-client";
 import AgoraRTC, { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack, IAgoraRTCRemoteUser, IRemoteVideoTrack } from "agora-rtc-sdk-ng";
 import { MdCallEnd } from "react-icons/md";
+import { getUserIdFromToken } from "@/service/helper";
 
 const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID;
 
@@ -20,6 +21,10 @@ interface SocketContextType {
   endCall: (roomId: string) => void;
   inCall: boolean;
   leaveCall: () => void;
+  onlineUsers: string[];
+  sendTypingIndicator: ({ roomId, userName }: { roomId: string, userName: string }) => void;
+  sendStopTypingIndicator: ({ roomId, userName }: { roomId: string, userName: string }) => void;
+  typingUsers: string[];
 }
 
 
@@ -36,7 +41,11 @@ const SocketContext = createContext<SocketContextType>({
   rejectCall: () => { },
   endCall: () => { },
   inCall: false,
-  leaveCall: () => { }
+  leaveCall: () => { },
+  onlineUsers: [],
+  sendTypingIndicator: ({ roomId, userName }: { roomId: string, userName: string }) => { },
+  sendStopTypingIndicator: ({ roomId, userName }: { roomId: string, userName: string }) => { },
+  typingUsers: []
 });
 
 
@@ -53,6 +62,8 @@ export const SocketProvider = ({
   const [isConnected, setIsConnected] = useState(false);
   const [incomingCall, setIncomingCall] = useState<any>(null);
   const [inCall, setInCall] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null);
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null);
   const [remoteVideoTrack, setRemoteVideoTrack] = useState<IRemoteVideoTrack | null>(null);
@@ -137,7 +148,7 @@ export const SocketProvider = ({
       console.log("Socket initializing with token:", token);
 
       // Initialize socket connection
-      const socketInstance = io("http://localhost:4700", {
+      const socketInstance = io(process.env.NEXT_PUBLIC_BASEURL as string, {
         // Option 1: Match your server's query check
         query: {
           authorization: token || "",
@@ -189,6 +200,24 @@ export const SocketProvider = ({
         await leaveCall();
       });
 
+      socketInstance.on("allOnline-users", (users: string[]) => {
+        console.log("allOnline-users", users);
+        setOnlineUsers(users);
+      });
+
+      socketInstance.on("show_typing", ({ userName }) => {
+        setTypingUsers((prev) => {
+          if (!prev.includes(userName)) {
+            return [...prev, userName];
+          }
+          return prev;
+        });
+      });
+
+      socketInstance.on("hide_typing", ({ userName }) => {
+        setTypingUsers((prev) => prev.filter((id) => id !== userName));
+      });
+
 
 
       setSocket(socketInstance);
@@ -202,6 +231,9 @@ export const SocketProvider = ({
         socket.off("disconnect");
         socket.off("connect_error");
         socket.off("incomingCall");
+        socket.off("allOnline-users");
+        socket.off("show_typing");
+        socket.off("hide_typing");
         socket.disconnect();
       }
     };
@@ -265,6 +297,22 @@ export const SocketProvider = ({
     }
   };
 
+  const sendTypingIndicator = ({ roomId, userName }: { roomId: string, userName: string }) => {
+    if (socket && roomId) {
+      const token = localStorage.getItem("whatsApp");
+      const myId = token ? getUserIdFromToken(token) : null;
+      socket.emit("typing", { roomId, userName: myId || userName });
+    }
+  };
+
+  const sendStopTypingIndicator = ({ roomId, userName }: { roomId: string, userName: string }) => {
+    if (socket && roomId) {
+      const token = localStorage.getItem("whatsApp");
+      const myId = token ? getUserIdFromToken(token) : null;
+      socket.emit("stop_typing", { roomId, userName: myId || userName });
+    }
+  };
+
 
   return (
     <SocketContext.Provider value={{
@@ -280,7 +328,11 @@ export const SocketProvider = ({
       rejectCall,
       endCall,
       inCall,
-      leaveCall
+      leaveCall,
+      onlineUsers,
+      sendTypingIndicator,
+      sendStopTypingIndicator,
+      typingUsers
     }}>
 
       {children}

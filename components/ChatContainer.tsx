@@ -23,7 +23,8 @@ const ChatContainer = () => {
     sendTypingIndicator,
     sendStopTypingIndicator,
     receiveMessage,
-    typingUsers
+    typingUsers,
+    socket
   } = useSocket();
 
   const id = useAppSelector((state) => state.idSlice.userId);
@@ -100,16 +101,35 @@ const ChatContainer = () => {
     }
   }, [data?.data]);
 
-  // Subscribe to real-time message updates
+  // Subscribe to real-time message updates and tick status updates
   useEffect(() => {
     const unsubscribe = receiveMessage((newMessage: any) => {
       setAllMessages((prev) => [...prev, newMessage]);
     });
 
+    if (socket) {
+      const handleMessagesRead = ({ roomId }: { roomId: string }) => {
+        if (roomId === id) {
+          setAllMessages((prev) =>
+            prev.map((msg) =>
+              msg.senderId !== id && msg.status !== "read"
+                ? { ...msg, status: "read" }
+                : msg
+            )
+          );
+        }
+      };
+      socket.on("messagesRead", handleMessagesRead);
+      return () => {
+        if (unsubscribe) unsubscribe();
+        socket.off("messagesRead", handleMessagesRead);
+      };
+    }
+
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [receiveMessage, id]);
+  }, [receiveMessage, id, socket]);
 
   // Scroll to bottom when messages or typing status changes
   useEffect(() => {
